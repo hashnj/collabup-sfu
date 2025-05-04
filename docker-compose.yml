@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  sfu-server:
+    build: .
+    container_name: sfu-server
+    ports:
+      - "3000:3000"                # signaling (if needed)
+      - "2000-2020:2000-2020/udp" # mediasoup ports
+      - "10000-10100:10000-10100/udp"
+    restart: always
+    environment:
+      - MEDIASOUP_MIN_PORT=2000
+      - MEDIASOUP_MAX_PORT=2020
