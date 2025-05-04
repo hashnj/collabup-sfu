@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
-# Install dependencies required by mediasoup
-RUN apk add --no-cache python3 make g++ linux-headers
+# Install system dependencies including pip
+RUN apk add --no-cache python3 py3-pip make g++ linux-headers
 
 WORKDIR /usr/src/app
 
@@ -10,7 +10,6 @@ RUN npm install
 
 COPY . .
 
-# Expose signaling and media ports
 EXPOSE 3000
 EXPOSE 2000-2020/udp
 EXPOSE 10000-10100/udp
