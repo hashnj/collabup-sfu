@@ -1,16 +1,16 @@
-import { getRouter, roomManager } from './mediasoup/mediasoupServer.js';
+import { getRouter, roomManager } from "../mediasoup/mediasoupServer.js";
 
 export function registerRoutes(app) {
-  app.post('/getRtpCapabilities', (req, res) => {
+  app.post("/getRtpCapabilities", (req, res) => {
     const router = getRouter();
     res.json(router.rtpCapabilities);
   });
 
-  app.post('/createTransport', async (req, res) => {
+  app.post("/createTransport", async (req, res) => {
     const { roomId } = req.body;
     const router = getRouter();
     const transport = await router.createWebRtcTransport({
-      listenIps: [{ ip: '0.0.0.0', announcedIp: null }],
+      listenIps: [{ ip: "0.0.0.0", announcedIp: null }],
       enableUdp: true,
       enableTcp: true,
       preferUdp: true,
@@ -27,14 +27,14 @@ export function registerRoutes(app) {
     });
   });
 
-  app.post('/connectTransport', async (req, res) => {
+  app.post("/connectTransport", async (req, res) => {
     const { transportId, dtlsParameters, roomId } = req.body;
     const transport = roomManager.getRoom(roomId).transports.get(transportId);
     await transport.connect({ dtlsParameters });
     res.json({ connected: true });
   });
 
-  app.post('/produce', async (req, res) => {
+  app.post("/produce", async (req, res) => {
     const { roomId, transportId, kind, rtpParameters } = req.body;
     const transport = roomManager.getRoom(roomId).transports.get(transportId);
     const producer = await transport.produce({ kind, rtpParameters });
@@ -42,11 +42,16 @@ export function registerRoutes(app) {
     res.json({ id: producer.id });
   });
 
-  app.post('/consume', async (req, res) => {
+  app.post("/consume", async (req, res) => {
     const { roomId, transportId, rtpCapabilities } = req.body;
     const router = getRouter();
-    if (!router.canConsume({ producerId: [...roomManager.getRoom(roomId).producers.keys()][0], rtpCapabilities })) {
-      return res.status(400).json({ error: 'Cannot consume' });
+    if (
+      !router.canConsume({
+        producerId: [...roomManager.getRoom(roomId).producers.keys()][0],
+        rtpCapabilities,
+      })
+    ) {
+      return res.status(400).json({ error: "Cannot consume" });
     }
 
     const producer = [...roomManager.getRoom(roomId).producers.values()][0];
