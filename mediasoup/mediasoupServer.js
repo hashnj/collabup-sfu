@@ -1,18 +1,27 @@
-import { Server } from 'mediasoup';
-import { createWorker } from 'mediasoup';
-import { RoomManager } from './roomManager.js';
+import mediasoup from 'mediasoup';
+import { roomManager } from './roomManager.js';
 
-export let worker;
-export let router;
-export const roomManager = new RoomManager();
+let worker;
+let router;
 
 export async function setupMediasoup() {
-  worker = await createWorker();
-  console.log('[Mediasoup] Worker created');
-  router = await worker.createRouter({ mediaCodecs: [/* your codecs */] });
-  console.log('[Mediasoup] Router created');
+  worker = await mediasoup.createWorker();
+  router = await worker.createRouter({ mediaCodecs: [
+    {
+      kind: 'audio',
+      mimeType: 'audio/opus',
+      clockRate: 48000,
+      channels: 2
+    },
+    {
+      kind: 'video',
+      mimeType: 'video/VP8',
+      clockRate: 90000,
+      parameters: {}
+    }
+  ]});
+  roomManager.setRouter(router);
+  console.log('Mediasoup worker and router initialized');
 }
 
-export function getRouter() {
-  return router;
-}
+export { router };
