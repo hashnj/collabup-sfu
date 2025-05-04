@@ -1,36 +1,18 @@
+import { Server } from 'mediasoup';
 import { createWorker } from 'mediasoup';
+import { RoomManager } from './roomManager.js';
 
-let worker;
-let router;
+export let worker;
+export let router;
+export const roomManager = new RoomManager();
 
 export async function setupMediasoup() {
-  worker = await createWorker({
-    rtcMinPort: parseInt(process.env.MEDIASOUP_MIN_PORT || '2000'),
-    rtcMaxPort: parseInt(process.env.MEDIASOUP_MAX_PORT || '2020')
-  });
+  worker = await createWorker();
+  console.log('[Mediasoup] Worker created');
+  router = await worker.createRouter({ mediaCodecs: [/* your codecs */] });
+  console.log('[Mediasoup] Router created');
+}
 
-  console.log(`Worker PID ${worker.pid}`);
-
-  router = await worker.createRouter({
-    mediaCodecs: [
-      {
-        kind: 'audio',
-        mimeType: 'audio/opus',
-        clockRate: 48000,
-        channels: 2
-      },
-      {
-        kind: 'video',
-        mimeType: 'video/VP8',
-        clockRate: 90000
-      }
-    ]
-  });
-
-  console.log('Router created');
-
-  worker.on('died', () => {
-    console.error('Mediasoup worker died');
-    process.exit(1);
-  });
+export function getRouter() {
+  return router;
 }

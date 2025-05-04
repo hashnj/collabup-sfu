@@ -1,8 +1,15 @@
 import express from 'express';
-import { setupMediasoup } from './mediasoup/mediasoupServer.js';
+import cors from 'cors';
+import { setupMediasoup, getRouter } from './mediasoup/mediasoupServer.js';
+import { registerRoutes } from './routes.js';
 
 const app = express();
 const PORT = 3000;
+
+app.use(cors());
+app.use(express.json());
+
+registerRoutes(app);
 
 app.get('/', (req, res) => res.send('Mediasoup Backend Running!'));
 
